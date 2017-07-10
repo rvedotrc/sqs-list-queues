@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+require 'sqs-list-queues'
+
+config = SqsListQueues::Config.new
+
+opts_parser = OptionParser.new do |opts|
+  opts.banner = "Usage: sqs-list-queues [OPTIONS] [PATTERN ...]"
+  opts.separator ""
+  opts.on("-c", "--counts", "Show message counts") do
+    config.show_counts = true
+  end
+  opts.on("-a", "--arn", "Show queue ARN") do
+    config.show_arn = true
+  end
+  opts.on("-u", "--url", "Show queue URL") do
+    config.show_url = true
+  end
+  opts.on("-j", "--json", "Show output in json format") do
+    config.json_format = true
+  end
+  opts.separator ""
+  opts.separator <<-EOF
+
+Lists SQS queues (either all queues, or if at least one PATTERN is given,
+those queues whose names match at least one PATTERN, implicitly prefixed by
+"^").  One line is printed to standard output for each queue.
+
+If --counts is shown, prefix by the message counts (visible, not visible, and
+delayed, in that order); then show the queue name, or ARN, or URL.  If JSON
+format is selected, the queue name is always shown, and the ARN and URL can
+both be selected if desired.
+
+Examples:
+
+  # List all queue names
+  sqs-list-queues
+
+  # List queues whose names start with either "Foo" or "Bar", showing queue
+  # URLs not names:
+  sqs-list-queues --url Foo Bar
+
+  # List queues whose names start with "MyQueues", showing message counts:
+  sqs-list-queues --counts MyQueues
+
+  EOF
+end
+
+opts_parser.parse!
+
+unless ARGV.empty?
+  config.patterns = ARGV
+end
+
+config.validate
+
+rc = SqsListQueues::Runner.new(config).run
+exit rc
+
+# eof sqs-list-queues

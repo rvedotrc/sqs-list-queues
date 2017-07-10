@@ -1,0 +1,5 @@
+require_relative './sqs-list-queues/client.rb'
+require_relative './sqs-list-queues/config.rb'
+require_relative './sqs-list-queues/lister.rb'
+require_relative './sqs-list-queues/runner.rb'
+require_relative './sqs-list-queues/version.rb'
